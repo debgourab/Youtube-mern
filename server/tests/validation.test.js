@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { resolveVideoSource } from "../src/utils/media.js";
 import { validatePassword } from "../src/utils/password.js";
+import { isImageDataUrl } from "../src/utils/validators.js";
 
 test("password requires every character class and respects bcrypt's UTF-8 limit", () => {
   for (const password of ["Password1!", "Valid#2026", "Aa1!" + "x".repeat(68)]) assert.equal(validatePassword(password), "");
@@ -34,4 +35,12 @@ test("direct media keeps signed query parameters and rejects unsafe or unsupport
     "https://example.com/page", "https://drive.google.com/file/d/id/view", "https://user:pass@example.com/video.mp4", "", null]) {
     assert.equal(resolveVideoSource(url), null, String(url));
   }
+});
+
+test("profile avatars accept only safe image data URLs", () => {
+  assert.equal(isImageDataUrl("data:image/png;base64,iVBORw0KGgo="), true);
+  assert.equal(isImageDataUrl("data:image/jpeg;base64,/9j/4AAQSkZJRg=="), true);
+  assert.equal(isImageDataUrl("data:image/svg+xml;base64,PHN2Zy8+"), false);
+  assert.equal(isImageDataUrl("data:text/html;base64,PGgxPk5vPC9oMT4="), false);
+  assert.equal(isImageDataUrl("javascript:alert(1)"), false);
 });

@@ -6,7 +6,9 @@ import { protect } from "../middleware/auth.js";
 import {
   createError,
   escapeRegex,
+  isImageDataUrl,
   isValidEmail,
+  isLocalAssetPath,
   normalizeEmail,
   normalizeString,
   publicUser
@@ -17,6 +19,7 @@ import { validatePassword } from "../utils/password.js";
 const router = express.Router();
 
 const signToken = (id) => jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+const MAX_AVATAR_LENGTH = 1_500_000;
 
 const validateRegister = ({ username, email, password }) => {
   const cleanUsername = normalizeString(username);
@@ -90,5 +93,27 @@ router.post("/login", async (req, res, next) => {
 router.get("/me", protect, (req, res) => {
   res.json({ user: publicUser(req.user) });
 });
+
+const updateAvatar = async (req, res, next) => {
+  try {
+    const avatar = normalizeString(req.body?.avatar);
+
+    if (!avatar) throw createError(400, "Profile picture is required.");
+    if (avatar.length > MAX_AVATAR_LENGTH) throw createError(400, "Profile picture must be 1 MB or smaller.");
+    if (!isLocalAssetPath(avatar) && !isImageDataUrl(avatar)) {
+      throw createError(400, "Profile picture must be a PNG, JPG, WebP, or GIF image.");
+    }
+
+    req.user.avatar = avatar;
+    await req.user.save();
+
+    res.json({ user: publicUser(req.user) });
+  } catch (error) {
+    next(error);
+  }
+};
+
+router.put("/me/avatar", protect, updateAvatar);
+router.patch("/me", protect, updateAvatar);
 
 export default router;

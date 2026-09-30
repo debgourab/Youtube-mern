@@ -30,6 +30,15 @@ export const registerUser = createAsyncThunk("auth/register", async (payload, { 
   }
 });
 
+export const updateProfile = createAsyncThunk("auth/updateProfile", async (payload, { rejectWithValue }) => {
+  try {
+    const { data } = await api.put("/auth/me/avatar", payload);
+    return data.user;
+  } catch (error) {
+    return rejectWithValue(errorMessage(error, "Could not update your profile."));
+  }
+});
+
 const authSlice = createSlice({
   name: "auth",
   initialState: { user: null, loading: false, initializing: true, requestId: null },
@@ -64,7 +73,14 @@ const authSlice = createSlice({
       .addCase(loginUser.rejected, (state) => { state.loading = false; })
       .addCase(registerUser.pending, (state) => { state.loading = true; })
       .addCase(registerUser.fulfilled, (state) => { state.loading = false; })
-      .addCase(registerUser.rejected, (state) => { state.loading = false; });
+      .addCase(registerUser.rejected, (state) => { state.loading = false; })
+      .addCase(updateProfile.pending, (state) => { state.loading = true; })
+      .addCase(updateProfile.fulfilled, (state, action) => {
+        state.user = action.payload;
+        state.loading = false;
+        state.initializing = false;
+      })
+      .addCase(updateProfile.rejected, (state) => { state.loading = false; });
   }
 });
 

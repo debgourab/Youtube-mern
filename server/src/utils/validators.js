@@ -41,6 +41,9 @@ export const isHttpUrl = (value) => {
 
 export const isLocalAssetPath = (value) => normalizeString(value).startsWith("/avatars/");
 
+export const isImageDataUrl = (value) =>
+  /^data:image\/(png|jpe?g|webp|gif);base64,[A-Za-z0-9+/]+={0,2}$/.test(normalizeString(value));
+
 export const createError = (status, message) => Object.assign(new Error(message), { status });
 
 export const publicUser = (user) => ({

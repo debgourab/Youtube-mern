@@ -24,7 +24,13 @@ export default function App() {
 
   return (
     <>
-      <a href="#page-content" className="skip-link">Skip to content</a>
+      <button
+        type="button"
+        className="skip-link"
+        onClick={() => document.getElementById("page-content")?.focus()}
+      >
+        Skip to content
+      </button>
       <Header expanded={overlay ? drawerOpen : desktopExpanded}
         onToggle={() => dispatch(overlay ? toggleDrawer() : toggleDesktop())} />
       <div className={!overlay && showSidebar ? "app-layout docked-layout" : "app-layout"}>

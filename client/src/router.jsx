@@ -1,5 +1,5 @@
 import { lazy } from "react";
-import { createBrowserRouter, Navigate, useLocation, useParams } from "react-router-dom";
+import { createHashRouter, Navigate, useLocation, useParams } from "react-router-dom";
 import App from "./App.jsx";
 import RouteError from "./components/RouteError.jsx";
 import { useAuth } from "./context/AuthContext.jsx";
@@ -22,7 +22,7 @@ function Protected({ children }) {
 function WatchRoute() { const { id } = useParams(); return <Watch key={id} />; }
 function ChannelRoute() { const { id } = useParams(); return <Channel key={id} />; }
 
-export const router = createBrowserRouter([{
+export const router = createHashRouter([{
   element: <App />,
   errorElement: <RouteError />,
   children: [

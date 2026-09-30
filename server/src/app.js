@@ -4,6 +4,7 @@ import authRoutes from "./routes/auth.js";
 import channelRoutes from "./routes/channels.js";
 import videoRoutes from "./routes/videos.js";
 import commentRoutes from "./routes/comments.js";
+import libraryRoutes from "./routes/library.js";
 
 const app = express();
 
@@ -38,6 +39,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/channels", channelRoutes);
 app.use("/api/videos", videoRoutes);
 app.use("/api/comments", commentRoutes);
+app.use("/api/library", libraryRoutes);
 
 app.use((_req, res) => {
   res.status(404).json({ message: "API route not found." });

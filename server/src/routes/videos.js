@@ -160,6 +160,15 @@ router.get("/:id", optionalAuth, async (req, res, next) => {
     );
     if (!video) throw createError(404, "Video not found.");
 
+    if (req.user) {
+      req.user.history = (req.user.history || []).filter(
+        (entry) => entry.video.toString() !== video._id.toString()
+      );
+      req.user.history.unshift({ video: video._id, viewedAt: new Date() });
+      req.user.history = req.user.history.slice(0, 100);
+      await req.user.save();
+    }
+
     const channelId = video.channelId?._id || video.channelId;
     const [comments, related] = await Promise.all([
       Comment.find({ videoId: video._id }).populate("userId", "username avatar").sort({ createdAt: -1 }),
@@ -176,7 +185,15 @@ router.get("/:id", optionalAuth, async (req, res, next) => {
     res.json({
       video: serializeVideo(video, req.user?._id),
       comments,
-      related: related.map((item) => serializeVideo(item, req.user?._id))
+      related: related.map((item) => serializeVideo(item, req.user?._id)),
+      library: req.user ? {
+        watchLater: req.user.watchLater.some((item) => item.equals(video._id)),
+        downloaded: req.user.downloads.some((item) => item.equals(video._id)),
+        inPlaylist: req.user.playlists.some((playlist) =>
+          playlist.videos.some((item) => item.equals(video._id))
+        ),
+        subscribed: req.user.subscriptions.some((item) => item.equals(channelId))
+      } : null
     });
   } catch (error) {
     next(error);

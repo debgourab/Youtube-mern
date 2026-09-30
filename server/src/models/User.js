@@ -27,7 +27,22 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "/avatars/user.svg"
     },
-    channels: [{ type: mongoose.Schema.Types.ObjectId, ref: "Channel" }]
+    channels: [{ type: mongoose.Schema.Types.ObjectId, ref: "Channel" }],
+    subscriptions: [{ type: mongoose.Schema.Types.ObjectId, ref: "Channel" }],
+    watchLater: [{ type: mongoose.Schema.Types.ObjectId, ref: "Video" }],
+    downloads: [{ type: mongoose.Schema.Types.ObjectId, ref: "Video" }],
+    playlists: [
+      {
+        name: { type: String, trim: true, default: "Saved videos" },
+        videos: [{ type: mongoose.Schema.Types.ObjectId, ref: "Video" }]
+      }
+    ],
+    history: [
+      {
+        video: { type: mongoose.Schema.Types.ObjectId, ref: "Video", required: true },
+        viewedAt: { type: Date, default: Date.now }
+      }
+    ]
   },
   { timestamps: true }
 );

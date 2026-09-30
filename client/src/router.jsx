@@ -8,6 +8,7 @@ const Home = lazy(() => import("./pages/Home.jsx"));
 const Auth = lazy(() => import("./pages/Auth.jsx"));
 const Watch = lazy(() => import("./pages/Watch.jsx"));
 const Channel = lazy(() => import("./pages/Channel.jsx"));
+const Library = lazy(() => import("./pages/Library.jsx"));
 const NotFound = lazy(() => import("./pages/NotFound.jsx"));
 
 function Protected({ children }) {
@@ -26,6 +27,9 @@ export const router = createBrowserRouter([{
   errorElement: <RouteError />,
   children: [
     { index: true, element: <Home /> },
+    { path: "shorts", element: <Home shorts /> },
+    { path: "subscriptions", element: <Protected><Library section="subscriptions" /></Protected> },
+    { path: "library/:section", element: <Protected><Library /></Protected> },
     { path: "auth", element: <Auth /> },
     { path: "watch/:id", element: <WatchRoute /> },
     { path: "channel/:id", element: <ChannelRoute /> },

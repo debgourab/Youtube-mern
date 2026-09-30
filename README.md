@@ -1,61 +1,104 @@
-# YouTube Clone — MERN Video Platform
+# YouTube MERN — Video Sharing Platform
 
-A full-stack video application for discovering videos, managing creator channels, and joining conversations through comments and reactions. Built with React, Redux Toolkit, Node.js, Express, and MongoDB.
+A full-stack, YouTube-inspired application for discovering videos, managing creator channels, and building a personal video library. Built with React, Redux Toolkit, Node.js, Express, and MongoDB, with the frontend deployed on Vercel and the API on Render.
 
-**Author:** Deb Gourab Biswas  
-**Repository:** [debgourab/Youtube-mern](https://github.com/debgourab/Youtube-mern)
+**Developed by [Deb Gourab Biswas](https://github.com/debgourab)**
 
-## Features
+[Live Demo](https://youtube-mern-deb.vercel.app/) · [Backend API](https://youtube-mern-e0iu.onrender.com/) · [GitHub Repository](https://github.com/debgourab/Youtube-mern)
 
-- Search videos by title and filter by category.
-- Watch public direct-media links and embedded YouTube videos, with playback errors and retry controls.
-- Create and manage channels, publish video metadata, and edit or delete your own videos.
-- Register and sign in with JWT authentication and bcrypt password hashing.
-- Like/dislike videos and create, edit, or delete your own comments.
-- Navigate through a responsive sidebar and an accessible mobile/watch-page drawer.
-- Load pages and images lazily, with loading skeletons and route error recovery.
+## Project Overview
 
-## Tech stack
+This project brings together responsive frontend development, REST API design, authentication, and MongoDB data modeling in a complete client–server application.
 
-| Area | Technologies |
+Visitors can browse and search the video feed. Registered users can create channels, publish video links, manage their content, leave comments, react to videos, and save content for later.
+
+| Resource | Link |
 | --- | --- |
-| Frontend | React, Vite, React Router, CSS, Lucide React |
-| State and requests | Redux Toolkit, React Redux, RTK Query, Axios |
-| Backend | Node.js, Express, JWT, bcryptjs |
+| Frontend | https://youtube-mern-deb.vercel.app/ |
+| Backend status | https://youtube-mern-e0iu.onrender.com/ |
+| Video API | https://youtube-mern-e0iu.onrender.com/api/videos |
+| Source code | https://github.com/debgourab/Youtube-mern |
+| Author | [Deb Gourab Biswas](https://github.com/debgourab) |
+
+## Key Features
+
+### Video Discovery & Playback
+
+- Search videos by title and filter the feed by category.
+- Watch supported direct video URLs and embedded YouTube videos.
+- Explore related videos based on category or channel.
+- Navigate a responsive interface with a collapsible sidebar.
+- See loading skeletons, empty states, and request error feedback.
+
+### Authentication & Creator Tools
+
+- Register and sign in with JWT authentication and bcrypt password hashing.
+- Validate password strength and protect authenticated routes.
+- Create and edit creator channels.
+- Publish video metadata, including title, description, thumbnail, category, and video URL.
+- Edit or delete owned videos with server-side ownership checks.
+
+### Engagement & Personal Library
+
+- Like or dislike videos.
+- Add, edit, and delete your own comments.
+- Subscribe to channels and browse their videos.
+- Access watch history, liked videos, watch later, and a saved-video playlist.
+
+## Engineering Highlights
+
+- **State management:** Redux Toolkit manages authentication and interface state; RTK Query caches video feed requests and supports cache invalidation.
+- **API integration:** A shared Axios client attaches authentication tokens, applies request timeouts, and handles expired sessions.
+- **Database relationships:** Mongoose models connect users, channels, videos, and comments through document references.
+- **Authorization:** Backend middleware validates JWTs, while resource-level checks restrict content changes to the owner.
+- **Input handling:** Server-side validation checks passwords, video metadata, media URLs, and categories; search terms are escaped before regex queries.
+- **Frontend structure:** Reusable components, lazy-loaded route pages, image fallbacks, and React Router hash routing support maintainable navigation.
+
+## Tech Stack
+
+| Layer | Technologies |
+| --- | --- |
+| Frontend | React, JavaScript, Vite, CSS, Lucide React |
+| Routing & state | React Router, Redux Toolkit, React Redux, RTK Query |
+| HTTP client | Axios |
+| Backend | Node.js, Express |
 | Database | MongoDB, Mongoose |
-| Quality | ESLint, Node.js test runner, Playwright, GitHub Actions |
-| Deployment | Render backend, Vercel frontend |
+| Authentication | JSON Web Tokens, bcryptjs |
+| Validation & quality | ESLint, Node.js test runner |
+| Deployment | Vercel, Render, MongoDB Atlas |
+| Version control | Git, GitHub |
 
 ## Architecture
 
-The React client calls the Express REST API. Mongoose models store users, channels, video metadata, and comments in MongoDB. Protected API routes validate JWTs and check ownership before allowing changes.
+The React client sends HTTP requests to the Express API. Public routes serve video and channel content; protected routes validate the user's JWT before processing account-specific actions. Mongoose handles persistence and relationships in MongoDB.
 
-Redux slices manage authentication and navigation state. RTK Query caches the video feed and invalidates it after publishing or deleting videos. Forms keep their state locally. Routing uses `createBrowserRouter`, `React.lazy`, and `Suspense`.
+The application stores **video URLs and metadata**. Playback uses external media sources or YouTube embeds; the backend does not upload, store, or transcode video files.
 
-| Path | Purpose |
+## Repository Structure
+
+| Path | Responsibility |
 | --- | --- |
-| [client/src/pages/](client/src/pages/) | Home, authentication, watch, channel, and studio pages |
-| [client/src/components/](client/src/components/) | Shared navigation, video cards, player, and filters |
-| [client/src/store/](client/src/store/) | Redux slices, store configuration, and RTK Query |
-| [client/src/context/](client/src/context/) | Compatibility hook for Redux authentication |
-| [client/src/utils/](client/src/utils/) | Media, password, formatting, and session helpers |
-| [client/src/router.jsx](client/src/router.jsx) | Routes and protected-page handling |
-| [client/src/styles.css](client/src/styles.css) | Responsive layouts and component styles |
-| [client/tests/](client/tests/) | Client utility tests |
-| [client/e2e/](client/e2e/) | Desktop and mobile browser tests |
-| [server/src/models/](server/src/models/) | User, Channel, Video, and Comment schemas |
-| [server/src/routes/](server/src/routes/) | Authentication, channels, videos, and comments API |
-| [server/src/middleware/](server/src/middleware/) | Authentication middleware |
-| [server/src/data/seed.js](server/src/data/seed.js) | Optional development demo data |
-| [server/tests/](server/tests/) | Validation and API tests |
-| [.github/workflows/quality.yml](.github/workflows/quality.yml) | Automated quality checks |
-| [render.yaml](render.yaml) / [netlify.toml](netlify.toml) | Hosting configuration |
+| `client/src/components/` | Header, sidebar, video cards, player, filters, and error UI |
+| `client/src/pages/` | Feed, authentication, watch, channel/studio, and library pages |
+| `client/src/store/` | Redux slices and RTK Query video API |
+| `client/src/utils/` | Media, password, session, and image helpers |
+| `client/src/api.js` | Shared Axios configuration |
+| `client/src/router.jsx` | Lazy-loaded routes and protected navigation |
+| `server/src/models/` | User, Channel, Video, and Comment schemas |
+| `server/src/routes/` | Authentication, channel, video, comment, and library endpoints |
+| `server/src/middleware/` | Authentication and authorization helpers |
+| `server/src/data/seed.js` | One-time sample data setup |
+| `server/tests/` | Authentication validation and utility tests |
 
-## Run locally
+## Run Locally
 
-### 1. Clone and install
+### Prerequisites
 
-Use Node.js 22 and a local MongoDB instance or MongoDB Atlas database.
+- Node.js 22 and npm
+- MongoDB running locally, or a MongoDB Atlas database
+- Git
+
+### 1. Clone and Install
 
 ```bash
 git clone https://github.com/debgourab/Youtube-mern.git
@@ -65,11 +108,9 @@ npm ci --prefix client
 npm ci --prefix server
 ```
 
-### 2. Configure the environment
+### 2. Configure Environment Variables
 
-Copy [server/.env.example](server/.env.example) to `server/.env`, and [client/.env.example](client/.env.example) to `client/.env`.
-
-Server configuration:
+Copy `server/.env.example` to `server/.env`, then configure:
 
 ```env
 PORT=5000
@@ -78,15 +119,17 @@ JWT_SECRET=replace_with_a_long_random_secret
 CLIENT_URL=http://127.0.0.1:5173
 ```
 
-Client configuration:
+For Atlas, use your own connection string, database name, database user, and network access settings.
+
+Copy `client/.env.example` to `client/.env`:
 
 ```env
 VITE_API_URL=http://localhost:5000/api
 ```
 
-For Atlas, replace `MONGODB_URI` with your connection string and configure database-user and network access. Keep credentials in environment variables; do not commit `.env` files.
+Keep real credentials in private environment variables. Do not commit `.env` files or expose backend secrets through client variables.
 
-### 3. Start the application
+### 3. Start the Application
 
 From the repository root:
 
@@ -94,151 +137,116 @@ From the repository root:
 npm run dev
 ```
 
-- Frontend: [http://127.0.0.1:5173](http://127.0.0.1:5173)
-- API base URL: [http://localhost:5000/api](http://localhost:5000/api)
-- API status: [http://localhost:5000/](http://localhost:5000/)
+| Service | Local URL |
+| --- | --- |
+| Frontend | http://127.0.0.1:5173 |
+| Backend | http://localhost:5000 |
+| Video API | http://localhost:5000/api/videos |
 
-To start services separately, use `npm run server` and `npm run client` in separate terminals.
+## Load the Included Sample Videos
 
-### Load the included sample videos
+The repository includes **9 sample video entries**. Deploying the source code does not automatically insert them into MongoDB.
 
-The repository includes 9 sample video entries in `server/src/data/seed.js`. Deploying the code does not insert them into MongoDB.
-
-1. In your private `server/.env`, set `MONGODB_URI` to the exact Atlas URI used by the Render service, including its database name.
-2. Add `SEED_DEMO_PASSWORD` with a private strong password (8+ characters, uppercase, lowercase, number and symbol; no spaces). Do not commit this value.
-3. From the repository root, run:
+1. Set `MONGODB_URI` in your private `server/.env` to the database you want to populate. To populate the deployed site, use the same Atlas database as Render.
+2. Add `SEED_DEMO_PASSWORD` with a private password containing at least eight characters, uppercase, lowercase, a number, and a symbol, with no spaces. Quote the value in your `.env`.
+3. Run from the repository root:
 
 ```bash
-npm ci --prefix server
-cd server
 npm run seed
 ```
 
-Run this once, from one terminal. Your computer must be allowed in Atlas Network Access. If using an available Render Shell instead, configure `SEED_DEMO_PASSWORD` in Render and run `npm run seed` from the service's `server` root.
+The command skips databases that already contain videos, rejects reset options, and stops before replacing existing demo accounts or channel handles. Run it once from one terminal. If a run fails partway through, inspect the database before retrying; the operation is not transactional.
 
-The command skips databases that already contain videos. Reset options are rejected, and existing demo accounts/channel handles cause a safe stop before writes. It does not overwrite their passwords or delete data. If a run fails partway through, inspect the database before retrying; seeding is not transactional.
+New sample accounts are `deb@example.com` and `maya@example.com`, using the password you configured. No public default password is provided.
 
-New demo accounts are `deb@example.com` and `maya@example.com`, using your private seed password. The password is never printed by the script. The 9 cards use the same sample MP4 source; they are demo metadata, not nine distinct uploaded files.
+All nine entries reference the same sample MP4, with different demo metadata and thumbnails. They do not represent nine distinct uploaded videos. Personally added local records require a separate database transfer.
 
-After success, check [the video API](https://youtube-mern-e0iu.onrender.com/api/videos) and refresh [the frontend](https://youtube-mern-deb.vercel.app/). No redeployment is needed for database-only changes. An empty `[]` means the selected database has no videos. To restore personally uploaded local videos instead, transfer the related local database records to Atlas.
+After successful seeding, refresh the site. No redeployment is required for database-only changes.
 
-## Application routes
+## API Overview
 
-| Route | Page |
-| --- | --- |
-| `/` | Video feed, search, and category filters |
-| `/auth` | Registration and sign-in |
-| `/watch/:id` | Player, reactions, comments, and related videos |
-| `/channel/:id` | Public channel page |
-| `/studio` | Protected channel and video management |
+Base URL: `https://youtube-mern-e0iu.onrender.com/api`
 
-## Video publishing
-
-Sign in, open Creator Studio, create or select a channel, and enter the video's title, description, thumbnail URL, category, and video URL. Use **Preview video**, then **Add video**.
-
-The application stores video URLs and metadata; it does not upload or transcode binary video files.
-
-Supported sources include public MP4, WebM, Ogg/OGV, and M4V URLs, plus YouTube watch, share, shorts, live, and embed links. Use HTTPS media on an HTTPS deployment. Private or expired URLs, embedding restrictions, blocked hosts, and unsupported codecs can prevent playback. Drive page links and extensionless streaming endpoints are not supported.
-
-## Authentication and API
-
-New passwords require at least eight characters, uppercase and lowercase letters, a number, and a special character. Whitespace is disallowed, and the maximum is 72 UTF-8 bytes.
-
-Use `Content-Type: application/json` for JSON requests. Protected endpoints also require:
-
-```text
-Authorization: Bearer <JWT_TOKEN>
-```
-
-| Method | Endpoint (relative to /api) | Purpose |
+| Method | Endpoint | Purpose |
 | --- | --- | --- |
-| POST | `/auth/register` | Create an account |
-| POST | `/auth/login` | Sign in and receive a token |
-| GET | `/auth/me` | Read the signed-in user |
-| GET | `/videos?search=React&category=React` | List, search, and filter videos |
-| GET | `/videos/:id` | Get video, comments, and related videos |
+| POST | `/auth/register` | Register an account |
+| POST | `/auth/login` | Sign in and receive a JWT |
+| GET | `/auth/me` | Retrieve the authenticated user |
+| GET | `/videos` | List videos; supports `search` and `category` |
+| GET | `/videos/:id` | Retrieve a video, comments, and related content |
 | POST | `/videos` | Publish video metadata |
-| PUT / DELETE | `/videos/:id` | Edit or delete an owned video |
+| PUT / DELETE | `/videos/:id` | Update or delete an owned video |
 | PUT | `/videos/:id/like`, `/videos/:id/dislike` | Toggle reactions |
 | POST | `/channels` | Create a channel |
-| GET | `/channels/mine` | List your channels |
-| GET | `/channels/user/:userId` | List a user's channels |
-| GET / PUT | `/channels/:id` | Read a channel or update an owned channel |
-| GET / POST | `/videos/:videoId/comments` | Read or create comments |
-| PUT / DELETE | `/comments/:id` | Update or delete an owned comment |
+| GET / PUT | `/channels/:id` | Read or update a channel |
+| GET / POST | `/videos/:videoId/comments` | Read or add comments |
+| PUT / DELETE | `/comments/:id` | Edit or delete an owned comment |
+| GET | `/library/:section` | Retrieve a personal library section |
 
-### Quick Postman / Thunder Client check
+Protected endpoints require:
 
-Register with `POST /api/auth/register`:
-
-```json
-{
-  "username": "demoCreator",
-  "email": "creator@example.com",
-  "password": "CreatorPass1!"
-}
+```http
+Authorization: Bearer <YOUR_JWT_TOKEN>
 ```
 
-Expect `201 Created`. Then call `POST /api/auth/login`:
-
-```json
-{
-  "identifier": "creator@example.com",
-  "password": "CreatorPass1!"
-}
-```
-
-Expect `200 OK`. Copy the returned token into the Bearer authorization header and call `GET /api/auth/me`. Invalid registration input returns `400`, invalid credentials return `401`, and duplicate accounts return `409`.
-
-For a complete manual flow, create a channel in Studio, publish a supported video link, play it, test reactions and comments, then edit and delete your own content. Use another account to check ownership restrictions and repeat at mobile width.
-
-## Tests and production build
+## Quality Checks
 
 Run from the repository root:
 
 ```bash
 npm run lint
-npm test --prefix client
 npm test --prefix server
 npm run build
 ```
 
-For browser tests:
+The backend tests cover authentication input rejection and validation utilities. They do not replace a live database or browser integration check. The production frontend build is generated in `client/dist/`.
 
-```bash
-cd client
-npx playwright install chromium
-npm run test:e2e
-```
-
-GitHub Actions runs clean dependency installs, linting, validation tests, the production build, and desktop/mobile Playwright tests. Browser tests mock API responses and generate a real WebM fixture to verify playback; live database persistence and third-party media availability require separate deployment checks.
-
-The frontend build is written to `client/dist/`.
+For manual verification, register an account, create a channel, publish a supported video link, and check playback, reactions, comments, saved videos, and ownership restrictions.
 
 ## Deployment
 
-| Setting | Render backend | Vercel frontend |
+| Setting | Render Backend | Vercel Frontend |
 | --- | --- | --- |
 | Branch | `main` | `main` |
 | Root directory | `server` | `client` |
+| Runtime/framework | Node.js 22 | Vite / Node.js 22.x |
 | Install/build | `npm ci` | Install: `npm ci`; build: `npm run build` |
 | Start command | `npm start` | — |
 | Output directory | — | `dist` |
-| Node version | 22 | 22.x |
 
-- **Render:** set `MONGODB_URI` to your private Atlas URI with the correct database name; set a private `JWT_SECRET`; set `CLIENT_URL=https://youtube-mern-deb.vercel.app` and `NODE_ENV=production`.
-- **Vercel Production:** set `VITE_API_URL=https://youtube-mern-e0iu.onrender.com/api`. Rebuild the frontend after changing this value.
-- **One-time sample data:** follow "Load the included sample videos" above. Keep `npm start` as the start command; do not seed on every deployment.
-- Atlas must allow the backend's outbound IP ranges and the database user must have read/write access to the selected database.
-- Keep `CLIENT_URL` as the exact frontend origin, without a trailing slash. Other preview domains require explicit CORS support.
+**Render environment**
 
-The API status endpoint is [the backend root](https://youtube-mern-e0iu.onrender.com/). Successful status alone does not mean sample videos have been inserted. MongoDB credentials and seed passwords belong only in private backend environment variables, never Vercel's client variables or committed files.
+| Variable | Value |
+| --- | --- |
+| `MONGODB_URI` | Private Atlas connection string with the correct database name |
+| `JWT_SECRET` | Private, randomly generated secret |
+| `CLIENT_URL` | `https://youtube-mern-deb.vercel.app` |
+| `NODE_ENV` | `production` |
+
+**Vercel production environment**
+
+```env
+VITE_API_URL=https://youtube-mern-e0iu.onrender.com/api
+```
+
+Rebuild the frontend after changing its environment variables. Keep `CLIENT_URL` equal to the exact frontend origin, without a trailing slash. Additional preview domains need explicit CORS support.
+
+Seed data separately from deployment; keep `npm start` as the backend start command. A successful API status response confirms the server is running, while an empty `/api/videos` response (`[]`) means the selected database has no video records.
+
+## Scope & Limitations
+
+- External media must remain publicly accessible and permit playback or embedding.
+- Related videos are selected by category or channel, without a machine-learning recommendation system.
+- The Shorts view displays a subset of the feed, without a dedicated short-form upload pipeline.
+- The Downloads collection stores saved video references; it does not provide offline video storage.
 
 ## Author
 
-**Deb Gourab Biswas**
+**Deb Gourab Biswas**  
+Full Stack Developer · MERN Stack · React.js
 
-- [GitHub profile](https://github.com/debgourab)
-- [Project repository](https://github.com/debgourab/Youtube-mern)
+- **GitHub:** [github.com/debgourab](https://github.com/debgourab)
+- **Repository:** [Youtube-mern](https://github.com/debgourab/Youtube-mern)
+- **Live application:** [youtube-mern-deb.vercel.app](https://youtube-mern-deb.vercel.app/)
 
-This is an independent learning and portfolio project inspired by YouTube, with no affiliation to YouTube or Google.
+Built as a learning and portfolio project. This application is independently developed and is not affiliated with YouTube or Google.

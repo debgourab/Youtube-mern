@@ -10,7 +10,8 @@ export default function App() {
   const location = useLocation();
   const { desktopExpanded, drawerOpen } = useSelector((state) => state.ui);
   const [mobile, setMobile] = useState(() => window.matchMedia("(max-width: 860px)").matches);
-  const overlay = mobile || location.pathname !== "/";
+  const overlay = mobile;
+  const showSidebar = overlay ? drawerOpen : desktopExpanded;
 
   useEffect(() => {
     const media = window.matchMedia("(max-width: 860px)");
@@ -26,9 +27,8 @@ export default function App() {
       <a href="#page-content" className="skip-link">Skip to content</a>
       <Header expanded={overlay ? drawerOpen : desktopExpanded}
         onToggle={() => dispatch(overlay ? toggleDrawer() : toggleDesktop())} />
-      <div className={overlay ? "app-layout" : "app-layout docked-layout"}>
-        {(!overlay || drawerOpen) && <Sidebar overlay={overlay} collapsed={!overlay && !desktopExpanded}
-          onClose={() => dispatch(closeDrawer())} />}
+      <div className={!overlay && showSidebar ? "app-layout docked-layout" : "app-layout"}>
+        {showSidebar && <Sidebar overlay={overlay} onClose={() => dispatch(closeDrawer())} />}
         <div id="page-content" className="page-content" tabIndex={-1}>
           <Suspense fallback={<div className="status" role="status">Loading page…</div>}>
             <Outlet />

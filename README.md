@@ -3,7 +3,7 @@
 A full-stack video application for discovering videos, managing creator channels, and joining conversations through comments and reactions. Built with React, Redux Toolkit, Node.js, Express, and MongoDB.
 
 **Author:** Deb Gourab Biswas  
-**Repository:** [debgourab/YouTube-Clone](https://github.com/debgourab/YouTube-Clone)
+**Repository:** [debgourab/Youtube-mern](https://github.com/debgourab/Youtube-mern)
 
 ## Features
 
@@ -24,7 +24,7 @@ A full-stack video application for discovering videos, managing creator channels
 | Backend | Node.js, Express, JWT, bcryptjs |
 | Database | MongoDB, Mongoose |
 | Quality | ESLint, Node.js test runner, Playwright, GitHub Actions |
-| Deployment | Render backend, Netlify frontend |
+| Deployment | Render backend, Vercel frontend |
 
 ## Architecture
 
@@ -58,8 +58,8 @@ Redux slices manage authentication and navigation state. RTK Query caches the vi
 Use Node.js 22 and a local MongoDB instance or MongoDB Atlas database.
 
 ```bash
-git clone https://github.com/debgourab/YouTube-Clone.git
-cd YouTube-Clone
+git clone https://github.com/debgourab/Youtube-mern.git
+cd Youtube-mern
 npm ci
 npm ci --prefix client
 npm ci --prefix server
@@ -100,11 +100,27 @@ npm run dev
 
 To start services separately, use `npm run server` and `npm run client` in separate terminals.
 
-### Optional development data
+### Load the included sample videos
 
-Run `npm run seed` against a development database to add sample channels and videos. The script skips seeding when videos already exist.
+The repository includes 9 sample video entries in `server/src/data/seed.js`. Deploying the code does not insert them into MongoDB.
 
-Local demo accounts are `deb@example.com` and `maya@example.com`, both with password `password123`. These are seeded demonstration accounts; new registrations require the stronger rules below. Use your own accounts for a public deployment. The seed script's `--reset` option deletes existing data and is not required for updates or redeployment.
+1. In your private `server/.env`, set `MONGODB_URI` to the exact Atlas URI used by the Render service, including its database name.
+2. Add `SEED_DEMO_PASSWORD` with a private strong password (8+ characters, uppercase, lowercase, number and symbol; no spaces). Do not commit this value.
+3. From the repository root, run:
+
+```bash
+npm ci --prefix server
+cd server
+npm run seed
+```
+
+Run this once, from one terminal. Your computer must be allowed in Atlas Network Access. If using an available Render Shell instead, configure `SEED_DEMO_PASSWORD` in Render and run `npm run seed` from the service's `server` root.
+
+The command skips databases that already contain videos. Reset options are rejected, and existing demo accounts/channel handles cause a safe stop before writes. It does not overwrite their passwords or delete data. If a run fails partway through, inspect the database before retrying; seeding is not transactional.
+
+New demo accounts are `deb@example.com` and `maya@example.com`, using your private seed password. The password is never printed by the script. The 9 cards use the same sample MP4 source; they are demo metadata, not nine distinct uploaded files.
+
+After success, check [the video API](https://youtube-mern-e0iu.onrender.com/api/videos) and refresh [the frontend](https://youtube-mern-deb.vercel.app/). No redeployment is needed for database-only changes. An empty `[]` means the selected database has no videos. To restore personally uploaded local videos instead, transfer the related local database records to Atlas.
 
 ## Application routes
 
@@ -201,30 +217,28 @@ The frontend build is written to `client/dist/`.
 
 ## Deployment
 
-The repository includes configuration for a Render backend and Netlify frontend.
-
-| Setting | Render | Netlify |
+| Setting | Render backend | Vercel frontend |
 | --- | --- | --- |
 | Branch | `main` | `main` |
-| Root/base directory | `server` | `client` |
-| Build command | `npm install` | `npm run build` |
+| Root directory | `server` | `client` |
+| Install/build | `npm ci` | Install: `npm ci`; build: `npm run build` |
 | Start command | `npm start` | — |
-| Publish directory | — | `dist` |
+| Output directory | — | `dist` |
+| Node version | 22 | 22.x |
 
-Set these environment variables:
+- **Render:** set `MONGODB_URI` to your private Atlas URI with the correct database name; set a private `JWT_SECRET`; set `CLIENT_URL=https://youtube-mern-deb.vercel.app` and `NODE_ENV=production`.
+- **Vercel Production:** set `VITE_API_URL=https://youtube-mern-e0iu.onrender.com/api`. Rebuild the frontend after changing this value.
+- **One-time sample data:** follow "Load the included sample videos" above. Keep `npm start` as the start command; do not seed on every deployment.
+- Atlas must allow the backend's outbound IP ranges and the database user must have read/write access to the selected database.
+- Keep `CLIENT_URL` as the exact frontend origin, without a trailing slash. Other preview domains require explicit CORS support.
 
-- **Render:** `MONGODB_URI`, `JWT_SECRET`, and `CLIENT_URL` set to the exact frontend origin.
-- **Netlify:** `VITE_API_URL` set to your backend URL followed by `/api`.
-
-After merging updates into `main`, deploy the latest commit on both services. Changes to `VITE_API_URL` require a frontend rebuild. No database reset or reseed is needed.
-
-If requests fail, check the API base URL, the exact CORS origin, and MongoDB connectivity. If a video fails, use the player's original-link action to check whether its source remains publicly accessible.
+The API status endpoint is [the backend root](https://youtube-mern-e0iu.onrender.com/). Successful status alone does not mean sample videos have been inserted. MongoDB credentials and seed passwords belong only in private backend environment variables, never Vercel's client variables or committed files.
 
 ## Author
 
 **Deb Gourab Biswas**
 
 - [GitHub profile](https://github.com/debgourab)
-- [Project repository](https://github.com/debgourab/YouTube-Clone)
+- [Project repository](https://github.com/debgourab/Youtube-mern)
 
 This is an independent learning and portfolio project inspired by YouTube, with no affiliation to YouTube or Google.

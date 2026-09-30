@@ -7,6 +7,7 @@ import Channel from "../models/Channel.js";
 import Video from "../models/Video.js";
 import Comment from "../models/Comment.js";
 import { VIDEO_CATEGORIES } from "../utils/validators.js";
+import { validatePassword } from "../utils/password.js";
 
 dotenv.config();
 
@@ -21,20 +22,41 @@ const thumbnails = [
   "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=900&q=80"
 ];
 
-const shouldReset = process.argv.includes("--reset") || process.env.SEED_RESET === "true";
+// This command only adds demo data; it never resets a database.
 
 const run = async () => {
+  if (process.argv.includes("--reset") || process.env.SEED_RESET === "true") {
+    throw new Error("Reset is disabled. This seed command never deletes existing data.");
+  }
+
   await connectDB();
 
-  if (shouldReset) {
-    await Promise.all([User.deleteMany({}), Channel.deleteMany({}), Video.deleteMany({}), Comment.deleteMany({})]);
-  } else if (await Video.exists({})) {
-    console.log("Seed skipped because videos already exist. Run `npm run seed -- --reset` to replace demo data.");
-    await mongoose.disconnect();
+  if (await Video.exists({})) {
+    console.log("Seed skipped because videos already exist. No data was changed.");
     return;
   }
 
-  const password = await bcrypt.hash("password123", 10);
+  const demoPassword = process.env.SEED_DEMO_PASSWORD;
+  const passwordError = validatePassword(demoPassword);
+  if (passwordError) {
+    throw new Error("Set SEED_DEMO_PASSWORD in your private environment. " + passwordError);
+  }
+
+  // Avoid replacing accounts or taking over an existing channel in an empty feed.
+  const existingUser = await User.exists({
+    $or: [
+      { email: { $in: ["deb@example.com", "maya@example.com"] } },
+      { username: { $in: ["Deb", "MayaCreates"] } }
+    ]
+  });
+  const existingChannel = await Channel.exists({
+    handle: { $in: ["codewithdeb", "mayastudio"] }
+  });
+  if (existingUser || existingChannel) {
+    throw new Error("Demo accounts or channels already exist. Seed stopped without changing them. Review the target database before continuing.");
+  }
+
+  const password = await bcrypt.hash(demoPassword, 10);
   const deb = await User.findOneAndUpdate(
     { email: "deb@example.com" },
     { username: "Deb", email: "deb@example.com", password, avatar: "/avatars/deb.svg" },
@@ -117,8 +139,12 @@ const run = async () => {
     text: "Great video! Very helpful."
   });
 
-  console.log("Seed complete. Login with deb@example.com / password123 or maya@example.com / password123");
-  await mongoose.disconnect();
+  console.log(`Seed complete: ${videos.length} sample videos added. Sign in with deb@example.com or maya@example.com using your private SEED_DEMO_PASSWORD.`);
 };
 
-run();
+run()
+  .catch((error) => {
+    console.error("Seed failed:", error.message);
+    process.exitCode = 1;
+  })
+  .finally(() => mongoose.disconnect());

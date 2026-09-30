@@ -1,6 +1,6 @@
 import { Edit2, Plus, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import api from "../api.js";
 import { useDispatch } from "react-redux";
 import { videosApi } from "../store/videosApi.js";
@@ -23,6 +23,7 @@ const blankVideo = {
 
 export default function Channel({ studio = false }) {
   const { id } = useParams();
+  const location = useLocation();
   const dispatch = useDispatch();
   const [pending, setPending] = useState(false);
   const [preview, setPreview] = useState("");
@@ -81,6 +82,14 @@ export default function Channel({ studio = false }) {
       .finally(() => { if (!controller.signal.aborted) setVideosLoading(false); });
     return () => controller.abort();
   }, [activeChannelId, studio]);
+
+  useEffect(() => {
+    if (loading || location.hash !== "#videos") return;
+    const frame = requestAnimationFrame(() => {
+      document.getElementById("channel-videos")?.scrollIntoView({ behavior: "smooth" });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [loading, location.hash, videosLoading]);
 
   useEffect(() => {
     if (!channel) {
@@ -326,7 +335,7 @@ export default function Channel({ studio = false }) {
         </section>
       )}
 
-      <section className="channel-videos">
+      <section className="channel-videos" id="channel-videos">
         <h2>{studio ? "Your videos" : "Videos"}</h2>
         {videosLoading && <p className="status" role="status">Loading channel videos…</p>}
         <div className="video-grid">

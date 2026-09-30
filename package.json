@@ -17,5 +17,8 @@
   },
   "engines": {
     "node": ">=20.19.0"
+  },
+  "dependencies": {
+    "all": "^0.0.0"
   }
 }
